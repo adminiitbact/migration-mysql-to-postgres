@@ -1,5 +1,6 @@
 from helper.hasura import hasura
 from helper.hasura import hasura
+import json
 
 
 class Patient:
@@ -26,7 +27,8 @@ class Patient:
     def sanitize(self, facility_id, ward_id):
         self.data.pop('patient_id')
         self.data['created_at'] = self.data.pop('creation_time').__str__()
-        
+        self.data['pre_existing_medical_condition'] = json.loads(self.data['pre_existing_medical_condition'])
+
         temp = self.data.pop('locality')
         self.data['area'] = {'data': {'key': temp, 'value': temp, 'regionByRegion': {'data': {'key': temp, 'value': temp}, 'on_conflict': {'constraint': 'region_pkey', 'update_columns': 'value'}}}, 'on_conflict': {'constraint': 'area_pkey', 'update_columns': 'value'}}
 
