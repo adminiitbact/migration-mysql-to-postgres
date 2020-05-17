@@ -6,10 +6,10 @@ class MySQL:
     def __init__(self):
         load_dotenv('.env')
         self.conn = mysql.connect(
-            host=os.getenv('host'),
-            user=os.getenv('username'),
-            password=os.getenv('password'),
-            database=os.getenv('database')
+            host=os.getenv('mysqlhost'),
+            user=os.getenv('mysqlusername'),
+            password=os.getenv('mysqlpassword'),
+            database=os.getenv('mysqldatabase'),
         )
         self.cur = self.conn.cursor(dictionary=True)
     

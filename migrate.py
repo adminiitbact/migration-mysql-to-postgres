@@ -20,6 +20,8 @@ if __name__ == '__main__':
     # areas = [Area(data=item, db_connector=mig) for item in mig.get_data('select * from areas')]
     # migrate(areas)
 
-    # select source facilities
-    facilities = [Facility(data=item, db_connector=mig) for item in mig.get_data('select * from facilities')]
-    migrate(facilities)
+    # facilities = [Facility(data=item, db_connector=mig) for item in mig.get_data('select * from facilities')]
+    # migrate(facilities)
+
+    admin_users = [AdminUser(data=item, db_connector=mig) for item in mig.get_data('select * from admin_users')]
+    migrate(admin_users)
