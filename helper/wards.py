@@ -1,4 +1,5 @@
 from helper.hasura import hasura
+from helper.patients import Patient
 import json
 
 
@@ -10,6 +11,8 @@ class Ward:
 
         if self.get_hist:
             self.get_history()
+            self.get_patients()
+
         self.sanitize()
 
     def __str__(self):
@@ -81,8 +84,7 @@ class Ward:
             insert_wards_history_one(object: $object) {
                 id
             }
-        }
-        '''
+        }'''
 
         self.data['facility'] = facility_id
         self.data['ward'] = ward_id
@@ -94,7 +96,6 @@ class Ward:
             return True
         return False
 
-
     def migrate(self, facility_id):
         print('inserting ward: {}'.format(self.data['name']))
 
@@ -103,8 +104,7 @@ class Ward:
             insert_ward_one(object: $object) {
                 id
             }
-        }
-        '''
+        }'''
         self.data['facility'] = facility_id
 
         response = hasura(query=query, variables={'object': self.data})
@@ -114,5 +114,11 @@ class Ward:
             if self.get_hist:
                 [item.migrate_hist(facility_id=facility_id, ward_id=response['data']
                                    ['insert_ward_one']['id']) for item in self.wards_histories]
+                [item.migrate(facility_id=facility_id, ward_id=response['data']
+                                   ['insert_ward_one']['id']) for item in self.patients]
             return True
         return False
+
+    def get_patients(self):
+        self.patients = [Patient(data=item, db_connector=self.db_connector) for item in self.db_connector.get_data(
+            'select distinct * from patients where patients.patient_id in (select distinct patient_id from patient_history where ward_id={ward})'.format(ward=self.data['id']))]

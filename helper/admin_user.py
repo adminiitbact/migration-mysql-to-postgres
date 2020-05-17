@@ -19,36 +19,11 @@ class AdminUser:
         self.data.pop('id')
         self.created_at = self.data.pop('creation_time').__str__()
 
-        relations = [
-            'region',
-            'jurisdiction'
-        ]
+        temp = self.data.pop('region')
+        self.data['regionByRegion'] = {'data': {'key': str(temp), 'value': str(temp)}, 'on_conflict': {'constraint': 'region_pkey', 'update_columns': 'value'}}
 
-        for item in relations:
-            if self.data[item]:
-                self.create_relation(field=item)
-
-    def create_relation(self, field):
-        query = '''
-        mutation insert_%s_one($object: %s_insert_input!) {
-            insert_%s_one(object: $object) {
-                key
-                value
-            }
-        }'''
-
-        response = hasura(query=query % (
-            field, field, field), variables={'object': {'key': str(self.data[field]), 'value': str(self.data[field])}})
-        if 'errors' in response:
-            if '{}_pkey'.format(field) in response['errors'][0]['message']:
-                self.data[field] = str(self.data[field])
-            else:
-                print(response)
-        elif 'data' in response:
-            print('creating {}: {} for admin_user: {}'.format(
-                field, self.data[field], self.data['name']))
-            self.data[field] = response['data']['insert_{}_one'.format(
-                field)]['key']
+        temp = self.data.pop('jurisdiction')
+        self.data['jurisdictionByJurisdiction'] = {'data': {'key': temp, 'value': temp}, 'on_conflict': {'constraint': 'jurisdiction_pkey', 'update_columns': 'value'}}
 
     def handle_error(self, error):
         print(error)

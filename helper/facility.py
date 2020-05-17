@@ -1,7 +1,7 @@
 import json
 from helper.wards import Ward
 from helper.hasura import hasura
-
+from helper.hospital_users import HospitalUser
 
 class Facility:
     def __init__(self, data, db_connector):
@@ -34,8 +34,8 @@ class Facility:
 
         # self.data['mapped_facilities'] = self.db_connector.get_data(
         #     'select * from facilities join facility_mapping on facilities.facility_id=facility_mapping.mapped_facility where facility_mapping.source_facility={}'.format(self.data['facility_id']))
-        # self.data['hospital_users'] = self.db_connector.get_data(
-        #     'select * from hospital_users where facility_id={}'.format(self.data['facility_id']))
+        self.hospital_users = [HospitalUser(data=item, db_connector=self.db_connector) for item in self.db_connector.get_data(
+            'select * from hospital_users where facility_id={}'.format(self.data['facility_id']))]
         self.wards = [Ward(data=item, db_connector=self.db_connector, get_hist=True) for item in self.db_connector.get_data(
             'select * from wards where facility_id={}'.format(self.data['facility_id']))]
 
@@ -143,5 +143,6 @@ class Facility:
             self.handle_error(response)
         if 'data' in response and response['data']['insert_facility_one']['id']:
             [item.migrate(facility_id=response['data']['insert_facility_one']['id']) for item in self.wards]
+            [item.migrate(facility_id=response['data']['insert_facility_one']['id']) for item in self.hospital_users]
             return True
         return False
