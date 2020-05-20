@@ -1,0 +1,6 @@
+make python virtualenv
+install dependencies from requirements.txt
+
+configure .env file to point to mysql and hasura instance
+
+run migrate.py
